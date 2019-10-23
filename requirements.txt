@@ -7,7 +7,7 @@ attrs==19.1.0
 backcall==0.1.0
 boto==2.49.0
 boto3==1.9.162
-#botocore==1.12.163
+botocore==1.12.163
 bz2file==0.98
 certifi==2019.6.16
 cffi==1.12.3
@@ -42,8 +42,18 @@ kiwisolver==1.1.0
 Markdown==3.1.1
 MarkupSafe==1.1.1
 matplotlib==3.1.0
-mkl-fft==1.0.6
-mkl-random==1.0.1
+
+
+#mkl-fft #==1.0.6
+#> ERROR: Could not find a version that satisfies the requirement mkl-fft (from -r requirements.txt (line 45)) (from versions: none)
+#> ERROR: No matching distribution found for mkl-fft
+
+#mkl-random #==1.0.1
+#> ERROR: Could not find a version that satisfies the requirement mkl-random (from -r requirements.txt (line 52)) (from versions: none)
+#> ERROR: No matching distribution found for mkl-random (from -r requirements.txt (line 52))
+
+mkl
+
 mock==3.0.5
 more-itertools==7.1.0
 msgpack==0.6.1
