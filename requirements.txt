@@ -7,7 +7,7 @@ attrs==19.1.0
 backcall==0.1.0
 boto==2.49.0
 boto3==1.9.162
-botocore==1.12.163
+#botocore==1.12.163
 bz2file==0.98
 certifi==2019.6.16
 cffi==1.12.3
