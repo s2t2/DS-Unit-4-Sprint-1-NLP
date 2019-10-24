@@ -21,8 +21,26 @@ pip install -r requirements.txt
 
 ## Usage
 
+### Notebooks
+
 Run the notebook server, the view it in the browser at http://localhost:8888/tree:
 
 ```sh
 jupyter notebook
+```
+
+### CLI
+
+Module 1:
+
+```sh
+python module1-text-data/lecture.py
+python module1-text-data/assignment.py
+```
+
+Module 2:
+
+```sh
+python module2-vector-representations/assignment.py
+python module2-vector-representations/lecture.py
 ```
