@@ -19,6 +19,14 @@ conda activate nlp-env
 pip install -r requirements.txt
 ```
 
+Download the natural language model called "en_core_web_sm":
+
+```sh
+#python -m spacy download en
+#python -m spacy download en_core_web_sm
+python -m spacy download en_core_web_lg
+```
+
 ## Usage
 
 ### Notebooks

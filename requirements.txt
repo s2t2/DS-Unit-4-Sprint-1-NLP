@@ -97,7 +97,10 @@ scipy==1.1.0
 seaborn==0.9.0
 six==1.12.0
 smart-open==1.8.4
-spacy==2.1.8
+
+spacy #==2.1.8
+#> 2.1.8 has issues but  2.2.1 works!
+
 squarify==0.4.3
 statsmodels==0.9.0
 tensorboard==1.14.0

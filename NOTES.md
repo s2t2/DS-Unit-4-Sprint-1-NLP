@@ -16,6 +16,9 @@
   + https://github.com/explosion/spaCy
   + https://spacy.io/
   + https://spacy.io/api
+  + [issues with installation due to thinc dependency](https://github.com/explosion/spaCy/issues/2849)
+  + [the `en_core_web_lg` language model](https://spacy.io/models/en#en_core_web_lg)
+  + [language model installation issues](https://stackoverflow.com/questions/54334304/spacy-cant-find-model-en-core-web-sm-on-windows-10-and-python-3-5-3-anacon)
 
 ### Word Segment
 
