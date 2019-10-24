@@ -1,181 +1,79 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# Lambda School Data Science
-#
-# *Unit 4, Sprint 1, Module 1*
-#
-# ---
-# <h1 id="moduleTitle"> Natural Language Processing Introduction (Prepare)</h1>
-#
-# "Natural" meaning - not computer languages but spoken/written human languages. The hard thing about NLP is that human languages are far less structured or consistent than computer languages. This is perhaps the largest source of difficulty when trying to get computers to "understand" human languages. How do you get a machine to understand sarcasm, and irony, and synonyms, connotation, denotation, nuance, and tone of voice --all without it having lived a lifetime of experience for context? If you think about it, our human brains have been exposed to quite a lot of training data to help us interpret languages, and even then we misunderstand each other pretty frequently.
-#
-#
-# <h2 id='moduleObjectives'>Learning Objectives</h2>
-#
-# By the end of end of this module, a student should be able to:
-# * <a href="#p1">Objective 1</a>: Tokenze text
-# * <a href="#p1">Objective 2</a>: Remove stop words from text
-# * <a href="#p3">Objective 3</a>: Perform stemming and lemmatization on tokens
-#
-# ## Conda Environments
-#
-# You will be completing each module this sprint on your machine. We will be using conda environments to manage the packages and their dependencies for this sprint's content. In a classroom setting, instructors typically abstract away environment for you. However, environment management is an important professional data science skill. We showed you how to manage environments using pipvirtual env during Unit 3, but in this sprint, we will introduce an environment management tool common in the data science community:
-#
-# > __conda__: Package, dependency and environment management for any language—Python, R, Ruby, Lua, Scala, Java, JavaScript, C/ C++, FORTRAN, and more.
-#
-# The easiest way to install conda on your machine is via the [Anaconda Distribution](https://www.anaconda.com/distribution/) of Python & R. Once you have conda installed, read ["A Guide to Conda Environments"](https://towardsdatascience.com/a-guide-to-conda-environments-bc6180fc533). This article will provide an introduce into some of the conda basics. If you need some additional help getting started, the official ["Setting started with conda"](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html) guide will point you in the right direction.
-#
-# To get the sprint environment setup:
-#
-# 1. Open your command line tool (Terminal for MacOS, Anaconda Prompt for Windows)
-# 2. Navigate to the folder with this sprint's content. There should be both  `environment_mac.yml` and a `environment_windows.yml`.
-# 3. Run `conda env create -n U4-S1-NLP -f /path/to/environment_mac.yml` => You should replace the operating system if you're a windows user. You can also rename the environment if you would like. Once the command completes, your conda environment should be ready.
-# 4. We are going to also add an Ipython Kernel reference to your conda environment, so we can use it from JupyterLab. You will need to 'activate' the conda environment: `source activate U4-S1-NLP` on Terminal or `conda activate U4-S1-NLP` on Anaconda Prompt.
-# 5. Next run `python -m ipykernel install --user --name U4-S1-NLP --display-name "U4-S1-NLP (Python3)"` => This will add a json object to an ipython file, so JupterLab will know that it can use this isolated instance of Python. :)
-# 6. Deactivate your conda environment and launch JupyterLab. You should know see "U4-S1-NLP (Python3)" in the list of available kernels on launch screen.
-#
-
-# # Tokenze Text (Learn)
-# <a id="p1"></a>
-
-# ## Overview
-#
-# > **token**: an instance of a sequence of characters in some particular document that are grouped together as a useful semantic unit for processing
-#
-# > [_*Introduction to Information Retrival*_](https://nlp.stanford.edu/IR-book/)
-#
-#
-# ### The attributes of good tokens
-#
-# * Should be stored in an iterable datastructure
-#   - Allows analysis of the "semantic unit"
-# * Should be all the same case
-#   - Reduces the complexity of our data
-# * Should be free of non-alphanumeric characters (ie punctuation, whitespace)
-#   - Removes information that is probably not relevant to the analysis
-
-# Let's pretend we are trying analyze the random sequence here. Question: what is the most common character in this sequence?
-
-# In[6]:
-
-
-random_seq = "AABAAFBBBBCGCDDEEEFCFFDFFAFFZFGGGGHEAFJAAZBBFCZ"
-
-
-# A useful unit of analysis for us is going to be a letter or character
-
-# In[7]:
-
-
-tokens = list(random_seq)
-print(tokens)
-
-
-# Our tokens are already "good": in an iterable datastructure, all the same case, and free of noise characters (punctionation, whitespace), so we can jump straight into analysis.
-
-# In[8]:
-
-
-import seaborn as sns
-
-sns.countplot(tokens);
-
-
-# The most common character in our sequence is  "F". We can't just glance at the the sequence to know which character is the most common. We (humans) struggle to subitize complex data (like random text sequences).
-#
-# > __Subitize__ is the ability to tell the number of objects in a set, quickly, without counting.
-#
-# We need to chunk the data into countable pieces "tokens" for us to analyze them. This inability subitize text data is the motivation for our discussion today.
-
-# ### Tokenizing with Pure Python
-
-# In[8]:
-
-
-sample = "Friends, Romans, countrymen, lend me your ears;"
-
-
-# ##### Iterable Tokens
-#
-# A string object in Python is already iterable. However, the item you iterate over is a character not a token:
-#
-# ```
-# from time import sleep
-# for num, character in enumerate(sample):
-#     sleep(.5)
-#     print(f"Char {num} - {character}", end="\r")
-# ```
-#
-# If we instead care about the words in our sample (our semantic unit), we can use the string method `.split()` to seperate the whitespace and create iterable units. :)
-
-# In[11]:
-
-
-sample.split(", ")
-
-
-# ##### Case Normalization
-# A common data cleaning data cleaning task with token is to standardize or normalize the case. Normalizing case reduces the chance that you have duplicate records for things which have practically the same semantic meaning. You can use either the `.lower()` or `.upper()` string methods to normalize case.
-#
-# Consider the following example:
-
-# In[12]:
-
-
-# Notice anything odd here?
-df['brand'].value_counts()
-
-
-# In[13]:
-
-
-# Much cleaner
-df['brand'] = df['brand'].apply(lambda x: x.lower())
-df['brand'].value_counts()
-
-
-# ##### Keep Only Alphanumeric Characters
-# Yes, we only want letters and numbers. Everything else is probably noise: punctionation, whitespace, and other notation. This one is little bit more complicatd than our previous example. Here we will have to import the base package `re` (regular expressions).
-#
-# The only regex expression pattern you need for this is `'[^a-zA-Z ^0-9]'` which keeps lower case letters, upper case letters, spaces, and numbers.
-
-# In[16]:
-
-
-sample = sample+" 911"
-
-
-# In[17]:
-
-
+#import os
+#import pandas as pd
 import re
 
-re.sub(r'[^a-zA-Z ^0-9]', '', sample)
+#AMAZON_REVIEWS_CSV_FILEPATH = os.path.join(os.path.dirname(__file__), "data", "Datafiniti_Amazon_Consumer_Reviews_of_Amazon_Products_May19.csv")
 
-
-# #### Two Minute Challenge
-# - Complete the function `tokenize` below
-# - Combine the methods which we discussed above to clean text before we analyze it
-# - You can put the methods in any order you want
-
-# In[18]:
-
+# The only regex expression pattern you need for this is `'[^a-zA-Z ^0-9]'` which keeps lower case letters, upper case letters, spaces, and numbers
+#ALPHANUMERIC_PATTERN = r'[^a-zA-Z ^0-9]' # r string literal treats slashes in a way that plays nice with regex
+ALPHANUMERIC_PATTERN = "[^a-zA-Z ^0-9]" # ... but no slashes in here so this should be ok
 
 def tokenize(text):
-    """Parses a string into a list of semantic units (words)
-
+    """
+    Parses a string into a list of semantic units (words)
     Args:
         text (str): The string that the function will tokenize.
-
     Returns:
         list: tokens parsed out by the mechanics of your choice
     """
-
-    tokens = re.sub(r'[^a-zA-Z ^0-9]', '', text)
-    tokens = tokens.lower().split()
-
+    parsed_text = text
+    parsed_text = parsed_text.lower()
+    parsed_text = re.sub(ALPHANUMERIC_PATTERN, '', parsed_text)
+    tokens = parsed_text.split() # do after removing special characters
     return tokens
+
+#
+# TOKENIZING
+#
+#  A "token" is a "useful semantic unit for processing" and is:
+#    + iterable
+#    + same case
+#    + only alphanumeric (i.e. no punctuation or whitespace or other notation)
+#    + reduced complexity (removes info that won't be helpful for analysis)
+#
+
+seq = "AABAAFBBBBCGCDDEEEFCFFDFFAFFZFGGGGHEAFJAAZBBFCZ"
+
+print("--------------")
+print("STRING CASE CONVERSIONS")
+print(seq.upper())
+print(seq.lower())
+
+print("--------------")
+print("STRING ITERATION")
+print(list(seq))
+for char in list(seq):
+    print(char)
+
+sentence = "Friends, Romans, countrymen, lend me your ears;"
+
+print("--------------")
+print("STRING SPLITTING")
+print(sentence.split(", "))
+print(sentence.split(" "))
+print(sentence.split())
+
+print("--------------")
+print("STRING CLEANING (VIA REGULAR EXPRESSIONS)")
+
+sentence += " 911"
+parsed_sentence = re.sub(ALPHANUMERIC_PATTERN, '', sentence)
+print(parsed_sentence) #> 'Friends Romans countrymen lend me your ears 911'
+
+#
+# TWO MINUTE CHALLENGE
+#
+
+print("--------------")
+print("ALL TOGETHER NOW... (TWO MINUTE CHALLENGE)")
+print(tokenize(sentence))
+my_message = " Oh HeY there - so whatr'u up to later???? \n  Text me (123) 456-4444. k cool! "
+print(my_message)
+print(tokenize(my_message))
+assert tokenize(my_message) == ['oh', 'hey', 'there', 'so', 'whatru', 'up', 'to', 'later', 'text', 'me', '123', '4564444', 'k', 'cool']
+
+exit()
 
 
 # ## Follow Along
