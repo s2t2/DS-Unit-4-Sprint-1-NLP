@@ -1,13 +1,11 @@
 
 import os
+from pprint import pprint
 
 from collections import Counter
 import pandas as pd
 import re
-
 import spacy
-#> cannot import name 'FeatureExtracter' from 'thinc.misc'
-
 from spacy.tokenizer import Tokenizer
 from nltk.stem import PorterStemmer
 
@@ -15,6 +13,8 @@ from nltk.stem import PorterStemmer
 # ... which keeps lower case letters, upper case letters, spaces, and numbers
 # ... r string literal treats slashes in a way that plays nice with regex
 ALPHANUMERIC_PATTERN = r'[^a-zA-Z ^0-9]' # same as "[^a-zA-Z ^0-9]"
+
+MY_MESSAGE = " Oh HeY there - so whatr'u up to later???? \n   Statue of Liberty trip later. \n Text me (123) 456-4444. k cool! "
 
 AMAZON_REVIEWS_CSV_FILEPATH = os.path.join(os.path.dirname(__file__), "data", "Datafiniti_Amazon_Consumer_Reviews_of_Amazon_Products_May19.csv")
 assert os.path.isfile(AMAZON_REVIEWS_CSV_FILEPATH)
@@ -78,142 +78,58 @@ def tokenization_substeps():
     print("--------------")
     print("ALL TOGETHER NOW... (TWO MINUTE CHALLENGE)")
     print(tokenize(sentence))
-    my_message = " Oh HeY there - so whatr'u up to later???? \n  Text me (123) 456-4444. k cool! "
-    print(my_message)
-    print(tokenize(my_message))
-    assert tokenize(my_message) == ['oh', 'hey', 'there', 'so', 'whatru', 'up', 'to', 'later', 'text', 'me', '123', '4564444', 'k', 'cool']
+    print(MY_MESSAGE)
+    print(tokenize(MY_MESSAGE))
+    assert tokenize(MY_MESSAGE) == ['oh', 'hey', 'there', 'so', 'whatru', 'up', 'to', 'later', 'statue', 'of', 'liberty', 'trip', 'later', 'text', 'me', '123', '4564444', 'k', 'cool']
+
+def spacy_docs():
+    nlp = spacy.load("en_core_web_lg") # a pre-trained natural language model
+
+    doc = nlp(MY_MESSAGE) #> <class 'spacy.tokens.doc.Doc'>
+    print(doc.text)
+    #pprint(doc.to_json())
+    for token in doc.to_json()["tokens"]:
+        print(token)
+
+    print(doc.ents) #> (Statue, 123, 456)
+    print([s for s in doc.sents])
+    print(doc.has_vector)
+    print(doc.vector)
+    print(doc.vector_norm) #> 2.608237769239645
+
 
 def follow_along():
 
-    # need to run `python -m spacy download en_core_web_sm` from the terminal h/t
-    nlp = spacy.load("en_core_web_lg") #> what's en_core_web_lg? a natural language model
+    df = pd.read_csv(AMAZON_REVIEWS_CSV_FILEPATH)
+    #print(df.head(2))
+    pprint(df.columns.tolist())
+    print(df["reviews.text"].head(10)) #> "I order 3 of them and one of the item is bad ..."
 
-    #*** OSError: [E050] Can't find model 'en_core_web_lg'. It doesn't seem to be a shortcut link, a Python package or a valid path to a data directory.
+    df["tokens"] = df["reviews.text"].apply(tokenize) # cool!
+    print(df["tokens"].head(10)) #> [i, order, 3, of, them, and, one, of, the, ite ...]
+
+    #
+    # COUNTING WORD FREQUENCIES
+    #
+
+    # method 1
+    counts = df["reviews.text"].value_counts(normalize=True) #> <class 'pandas.core.series.Series'>
+    print(counts[0:10]) #> Great price         0.001059 etc.
+
+    # method 2
+    word_counts = Counter()
+    df["tokens"].apply(lambda x: word_counts.update(x)) # populate the word counts based on df contents
+    word_counts.most_common(10)
+
 
     breakpoint()
+    exit()
 
-    doc = nlp("This is a sentence.") #> <class 'spacy.tokens.doc.Doc'>
 
 
-    #df = pd.read_csv('./data/Datafiniti_Amazon_Consumer_Reviews_of_Amazon_Products_May19.csv')
-    #print(df.head(2))
-#
-#
-#
-    #breakpoint()
-    #counts = df['reviews.text'].value_counts(normalize=True)
-    #print(counts[:50])
-#
-#
-#
-    ## In[19]:
-#
-#
-    #df['tokens'] = df['reviews.text'].apply(tokenize)
-#
-#
-    ## In[20]:
-#
-#
-    #df['tokens'].head()
-#
-#
-    ## #### Analyzing Tokens
-#
-    ## In[22]:
-#
-#
-    ## Object from Base Python
-    #
-#
-    ## The object `Counter` takes an iterable, but you can instaniate an empty one and update it.
-    #word_counts = Counter()
-#
-    ## Update it based on a split of each of our documents
-    #df['tokens'].apply(lambda x: word_counts.update(x))
-#
-    ## Print out the 10 most common words
-    #word_counts.most_common(10)
-#
-#
-    ## Let's create a fuction which takes a corpus of document and returns and dataframe of word counts for us to analyze.
-#
-    ## In[23]:
-#
-#
-    #def count(docs):
-#
-    #        word_counts = Counter()
-    #        appears_in = Counter()
-#
-    #        total_docs = len(docs)
-#
-    #        for doc in docs:
-    #            word_counts.update(doc)
-    #            appears_in.update(set(doc))
-#
-    #        temp = zip(word_counts.keys(), word_counts.values())
-#
-    #        wc = pd.DataFrame(temp, columns = ['word', 'count'])
-#
-    #        wc['rank'] = wc['count'].rank(method='first', ascending=False)
-    #        total = wc['count'].sum()
-#
-    #        wc['pct_total'] = wc['count'].apply(lambda x: x / total)
-#
-    #        wc = wc.sort_values(by='rank')
-    #        wc['cul_pct_total'] = wc['pct_total'].cumsum()
-#
-    #        t2 = zip(appears_in.keys(), appears_in.values())
-    #        ac = pd.DataFrame(t2, columns=['word', 'appears_in'])
-    #        wc = ac.merge(wc, on='word')
-#
-    #        wc['appears_in_pct'] = wc['appears_in'].apply(lambda x: x / total_docs)
-#
-    #        return wc.sort_values(by='rank')
-#
-#
-    ## In[24]:
-#
-#
-    ## Use the Function
-    #wc = count(df['tokens'])
-#
-#
-    ## In[25]:
-#
-#
-    #wc.head()
-#
-#
-    ## In[26]:
-#
-#
-    #import seaborn as sns
-#
-    ## Cumulative Distribution Plot
-    #sns.lineplot(x='rank', y='cul_pct_total', data=wc);
-#
-#
-    ## In[28]:
-#
-#
-    #wc[wc['rank'] <= 20]['cul_pct_total'].max()
-#
-#
-    ## In[29]:
-#
-#
-    #import squarify
-    #import matplotlib.pyplot as plt
-#
-    #wc_top20 = wc[wc['rank'] <= 20]
-#
-    #squarify.plot(sizes=wc_top20['pct_total'], label=wc_top20['word'], alpha=.8 )
-    #plt.axis('off')
-    #plt.show()
-#
-#
+
+
+
     ## ### Processing Raw Text with Spacy
     ##
     ## Spacy's datamodel for documents is unique among NLP libraries. Instead of storing the documents components repeatively in various datastructures, Spacy indexes components and simply stores the lookup informaiton.
@@ -604,5 +520,7 @@ def follow_along():
 
 if __name__ == "__main__":
     tokenization_substeps()
+
+    spacy_docs()
 
     follow_along()
