@@ -21,8 +21,8 @@ pip install -r requirements.txt
 
 ## Usage
 
-Run the notebook server:
+Run the notebook server, the view it in the browser at http://localhost:8888/tree:
 
 ```sh
-
+jupyter notebook
 ```

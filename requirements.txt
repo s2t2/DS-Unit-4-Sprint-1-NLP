@@ -34,6 +34,11 @@ jedi==0.13.3
 Jinja2==2.10.1
 jmespath==0.9.4
 joblib==0.13.2
+
+jupyter
+# fixes:
+# Error executing Jupyter command 'notebook': [Errno 2] No such file or directory
+
 jupyter-client==5.2.4
 jupyter-core==4.4.0
 Keras-Applications==1.0.8
@@ -42,7 +47,6 @@ kiwisolver==1.1.0
 Markdown==3.1.1
 MarkupSafe==1.1.1
 matplotlib==3.1.0
-
 
 #mkl-fft #==1.0.6
 #> ERROR: Could not find a version that satisfies the requirement mkl-fft (from -r requirements.txt (line 45)) (from versions: none)
