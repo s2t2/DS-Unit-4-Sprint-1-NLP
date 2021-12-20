@@ -34,6 +34,11 @@ jedi==0.13.3
 Jinja2==2.10.1
 jmespath==0.9.4
 joblib==0.13.2
+
+jupyter
+# fixes:
+# Error executing Jupyter command 'notebook': [Errno 2] No such file or directory
+
 jupyter-client==5.2.4
 jupyter-core==4.4.0
 Keras-Applications==1.0.8
@@ -42,8 +47,17 @@ kiwisolver==1.1.0
 Markdown==3.1.1
 MarkupSafe==1.1.1
 matplotlib==3.1.0
-mkl-fft==1.0.6
-mkl-random==1.0.1
+
+#mkl-fft #==1.0.6
+#> ERROR: Could not find a version that satisfies the requirement mkl-fft (from -r requirements.txt (line 45)) (from versions: none)
+#> ERROR: No matching distribution found for mkl-fft
+
+#mkl-random #==1.0.1
+#> ERROR: Could not find a version that satisfies the requirement mkl-random (from -r requirements.txt (line 52)) (from versions: none)
+#> ERROR: No matching distribution found for mkl-random (from -r requirements.txt (line 52))
+
+mkl
+
 mock==3.0.5
 more-itertools==7.1.0
 msgpack==0.6.1
@@ -83,7 +97,10 @@ scipy==1.1.0
 seaborn==0.9.0
 six==1.12.0
 smart-open==1.8.4
-spacy==2.1.8
+
+spacy #==2.1.8
+#> 2.1.8 has issues but  2.2.1 works!
+
 squarify==0.4.3
 statsmodels==0.9.0
 tensorboard==1.14.0
